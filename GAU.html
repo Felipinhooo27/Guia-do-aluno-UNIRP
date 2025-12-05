@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia do Aluno UNIRP</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fontes -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+        body { font-family: 'Roboto', sans-serif; }
+        
+        /* Remove setas dos inputs number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        /* Animação de Confete */
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            animation: confetti-fall 4s linear infinite;
+            z-index: 50;
+            pointer-events: none;
+        }
+        .confetti:nth-child(2n) { background-color: #0f0; animation-duration: 3s; left: 20%; }
+        .confetti:nth-child(3n) { background-color: #00f; animation-duration: 5s; left: 80%; }
+        .confetti:nth-child(4n) { background-color: #ff0; animation-duration: 3.5s; left: 40%; }
+        .confetti:nth-child(5n) { background-color: #0ff; animation-duration: 4.5s; left: 60%; }
+        .confetti:nth-child(6n) { background-color: #f0f; animation-duration: 3.2s; left: 10%; }
+        .confetti:nth-child(7n) { background-color: #0ff; animation-duration: 4.8s; left: 90%; }
+        .confetti:nth-child(8n) { background-color: #ff0; animation-duration: 3.7s; left: 30%; }
+        .confetti:nth-child(9n) { background-color: #0f0; animation-duration: 4.2s; left: 70%; }
+        .confetti-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .confetti-container.active {
+            display: block;
+        }
+
+        /* Transições de Tab */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Animação de Entrada de Card */
+        @keyframes slide-up-fade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card-enter {
+            animation: slide-up-fade 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center font-sans">
+
+    <!-- Confetti Container -->
+    <div id="confetti-container" class="confetti-container">
+        <!-- Aumentada a quantidade de confetes -->
+        <div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div>
+        <div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div>
+        <div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div>
+        <div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div>
+        <div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div>
+        <div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div><div class="confetti"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="w-full max-w-2xl p-4 flex-grow">
+        
+        <!-- Header / Logo -->
+        <div class="bg-white shadow-sm border-t-4 border-red-600 mb-6 rounded-sm overflow-hidden p-6 flex flex-col items-center justify-center text-center">
+            <h1 class="text-4xl md:text-5xl font-black text-red-600 tracking-tighter" style="font-family: 'Arial Black', sans-serif;">GUIA DO ALUNO UNIRP</h1>
+            <h2 class="text-xs md:text-sm font-bold text-red-600 tracking-widest mt-2">CENTRO UNIVERSITÁRIO DE RIO PRETO</h2>
+        </div>
+
+        <!-- Navegação (Tabs) -->
+        <div class="flex mb-4 bg-white shadow-sm rounded-sm overflow-hidden">
+            <button id="tab-notas" class="flex-1 py-3 px-4 text-center font-bold text-gray-700 bg-gray-50 border-b-2 border-red-600 focus:outline-none transition-colors">
+                Notas
+            </button>
+            <button id="tab-faltas" class="flex-1 py-3 px-4 text-center font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-700 focus:outline-none transition-colors">
+                Faltas
+            </button>
+        </div>
+
+        <!-- Conteúdo da Aba: Notas -->
+        <div id="content-notas" class="tab-content active bg-white shadow-md border border-gray-300 rounded-sm overflow-hidden card-enter">
+            <div class="bg-gray-50 p-4 border-b border-gray-300 flex justify-between items-center">
+                <h2 class="font-bold text-gray-700 text-lg flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                    Calculadora de Notas
+                </h2>
+                <div class="text-xs text-gray-500 font-medium px-2 py-1 bg-gray-200 rounded">2025/2</div>
+            </div>
+
+            <div class="p-6">
+                <!-- Info Meta -->
+                <div class="bg-red-50 p-3 font-bold text-gray-700 text-sm mb-6 border-l-4 border-red-600 flex justify-between items-center rounded-r-sm shadow-sm">
+                    <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Notas da Disciplina</span>
+                    <span class="text-xs font-bold text-red-800 bg-red-100 px-3 py-1 rounded-full border border-red-200">
+                        Meta: 6,51
+                    </span>
+                </div>
+
+                <!-- Inputs de Notas -->
+                <div class="space-y-4">
+                    <!-- Intermediária -->
+                    <div class="flex justify-between items-center p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:border-red-300 transition-colors">
+                        <label class="text-base font-bold text-red-700 capitalize flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            Intermediária <span class="text-gray-400 text-xs font-normal ml-1">(peso: 3.50)</span>
+                        </label>
+                        <input type="number" id="input-inter" data-weight="3.5" class="grade-input w-24 text-center text-lg font-bold py-1 px-2 rounded border focus:outline-none focus:ring-2 focus:ring-red-500 transition-all bg-white text-gray-400 border-gray-300 placeholder-gray-300 border-dashed" placeholder="0.00">
+                    </div>
+                    <!-- Semestral -->
+                    <div class="flex justify-between items-center p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:border-red-300 transition-colors">
+                        <label class="text-base font-bold text-red-700 capitalize flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            Semestral <span class="text-gray-400 text-xs font-normal ml-1">(peso: 3.50)</span>
+                        </label>
+                        <input type="number" id="input-semes" data-weight="3.5" class="grade-input w-24 text-center text-lg font-bold py-1 px-2 rounded border focus:outline-none focus:ring-2 focus:ring-red-500 transition-all bg-white text-gray-400 border-gray-300 placeholder-gray-300 border-dashed" placeholder="0.00">
+                    </div>
+                    <!-- Trabalho -->
+                    <div class="flex justify-between items-center p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:border-red-300 transition-colors">
+                        <label class="text-base font-bold text-red-700 capitalize flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                            Trabalho <span class="text-gray-400 text-xs font-normal ml-1">(peso: 3.00)</span>
+                        </label>
+                        <input type="number" id="input-trab" data-weight="3.0" class="grade-input w-24 text-center text-lg font-bold py-1 px-2 rounded border focus:outline-none focus:ring-2 focus:ring-red-500 transition-all bg-white text-gray-400 border-gray-300 placeholder-gray-300 border-dashed" placeholder="0.00">
+                    </div>
+                </div>
+
+                <!-- Resultado Final -->
+                <div class="flex justify-between items-center py-4 border-t-2 border-gray-100 bg-gray-50 mt-6 px-4 rounded-md shadow-sm">
+                    <label class="text-lg font-black text-gray-800">MÉDIA PARCIAL</label>
+                    <div id="display-total" class="w-28 text-center text-2xl font-bold py-2 px-2 rounded-md border shadow-sm bg-gray-200 text-gray-500 transition-all duration-300">
+                        0.00
+                    </div>
+                </div>
+                
+                <!-- Mensagem de Status da Média -->
+                <div id="media-status-message" class="mt-4 p-3 rounded-md text-sm font-bold text-center hidden card-enter"></div>
+
+                <!-- Dica / Legend -->
+                <div id="grade-hint" class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-sm text-yellow-800 flex items-start shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span>Os números <strong>cinzas tracejados</strong> indicam quanto você precisa tirar para fechar com média 6,51.</span>
+                </div>
+
+                <!-- Informativo de Recuperação -->
+                <div id="recuperacao-info" class="mt-6 p-4 bg-red-50 border-l-4 border-red-600 rounded-md shadow-sm hidden card-enter">
+                    <h3 class="font-bold text-red-800 text-lg mb-2 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>Informativo de Recuperação</h3>
+                    <div class="space-y-3 text-sm text-red-700">
+                        <p>Sua média está abaixo de 6,51. Veja suas opções:</p>
+                        <div class="bg-white p-3 rounded border border-red-200">
+                            <span class="font-bold block mb-1">📝 Prova Substitutiva (SUB)</span>
+                            Substitui a sua <strong>menor nota</strong> (exceto Trabalho).<br>
+                            Você precisa tirar: <strong id="nota-sub" class="text-lg text-red-800">0.00</strong> na <span id="tipo-nota-sub" class="font-bold lowercase"></span>.
+                        </div>
+                        <div class="bg-white p-3 rounded border border-red-200">
+                            <span class="font-bold block mb-1">🎓 Exame Final - Gratuito</span>
+                            A soma da sua Média Parcial com a nota do Exame deve ser <strong>10</strong>.<br>
+                            Você precisa tirar: <strong id="nota-exame" class="text-lg text-red-800">0.00</strong>.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Conteúdo da Aba: Faltas -->
+        <div id="content-faltas" class="tab-content bg-white shadow-md border border-gray-300 rounded-sm overflow-hidden card-enter">
+            <div class="bg-gray-50 p-4 border-b border-gray-300 flex justify-between items-center">
+                <h2 class="font-bold text-gray-700 text-lg flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    Calculadora de Faltas
+                </h2>
+                <div class="text-xs text-gray-500 font-medium px-2 py-1 bg-gray-200 rounded">2025/2</div>
+            </div>
+
+            <div class="p-6">
+                <!-- Dica Faltas -->
+                <div class="bg-yellow-50 p-3 border border-yellow-200 rounded-md text-sm text-yellow-800 flex items-start shadow-sm mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span><strong>Dica:</strong> Os professores podem demorar para lançar as faltas no sistema. Mantenha seu controle pessoal!</span>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Seletor de Aulas por Semana -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>Aulas por Semana da Disciplina:</label>
+                        <div class="flex space-x-4">
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="aulas-semana" value="1" class="peer sr-only" checked>
+                                <div class="text-center py-3 px-4 rounded-md border-2 border-gray-200 bg-white text-gray-500 font-bold peer-checked:border-red-600 peer-checked:text-red-600 peer-checked:bg-red-50 transition-all shadow-sm hover:border-gray-300">
+                                    1 Aula/Semana
+                                    <span class="block text-xs font-normal mt-1">(Total: 40h)</span>
+                                </div>
+                            </label>
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="aulas-semana" value="2" class="peer sr-only">
+                                <div class="text-center py-3 px-4 rounded-md border-2 border-gray-200 bg-white text-gray-500 font-bold peer-checked:border-red-600 peer-checked:text-red-600 peer-checked:bg-red-50 transition-all shadow-sm hover:border-gray-300">
+                                    2 Aulas/Semana
+                                    <span class="block text-xs font-normal mt-1">(Total: 80h)</span>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <!-- Legenda Dinâmica de Tempos -->
+                        <div id="tempos-legend" class="text-xs text-gray-500 bg-gray-50 p-3 rounded border border-gray-200 mt-2">
+                            <!-- O conteúdo será inserido via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Input de Faltas Atuais -->
+                    <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:border-red-300 transition-colors">
+                        <label for="input-faltas" class="text-base font-bold text-gray-700 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Suas Faltas Atuais (nº de tempos):
+                        </label>
+                        <input type="number" id="input-faltas" min="0" class="w-24 text-center text-lg font-bold py-1 px-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all bg-white text-gray-700 placeholder-gray-300" placeholder="0">
+                    </div>
+
+                    <!-- Resultado de Faltas -->
+                    <div id="faltas-result-card" class="hidden mt-6 p-4 rounded-md shadow-sm border-l-4 transition-all duration-300 card-enter">
+                        <h3 class="font-bold text-lg mb-2 flex items-center" id="faltas-result-title"></h3>
+                        <p id="faltas-result-message" class="text-sm font-medium"></p>
+                        <div class="mt-3 text-xs font-medium flex items-center">
+                            <span id="faltas-presenca-badge" class="px-2 py-1 rounded-full border"></span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="py-6 text-center text-gray-500 text-sm font-medium w-full bg-white shadow-inner">
+        <p>Criado por Felipe</p>
+        <p class="text-xs mt-1">CCO Noturno UNIRP - 2025</p>
+    </div>
+
+    <script>
+        // --- Configurações Globais ---
+        const TARGET_MEDIA = 6.51;
+        
+        // Carga Horária e Faltas
+        const AULAS_TOTAL_1 = 40; // 1 Aula/Semana (40h)
+        const AULAS_TOTAL_2 = 80; // 2 Aulas/Semana (80h)
+        
+        // Fator de faltas por DIA de aula
+        // 1 Aula/Semana: geralmente 2 tempos (19:00 e 19:50) -> 2 faltas se faltar o dia todo
+        const FALTAS_POR_DIA_1 = 2;
+        // 2 Aulas/Semana: geralmente 4 tempos -> 4 faltas se faltar o dia todo
+        const FALTAS_POR_DIA_2 = 4;
+
+        const LIMITE_FALTAS_PCT = 0.25; // 25%
+
+        // --- Elementos do DOM (Notas) ---
+        const tabNotasBtn = document.getElementById('tab-notas');
+        const contentNotas = document.getElementById('content-notas');
+        const gradeInputs = Array.from(document.querySelectorAll('.grade-input'));
+        const displayTotal = document.getElementById('display-total');
+        const mediaStatusMessage = document.getElementById('media-status-message');
+        const gradeHint = document.getElementById('grade-hint');
+        const recuperacaoInfo = document.getElementById('recuperacao-info');
+        const notaSub = document.getElementById('nota-sub');
+        const tipoNotaSub = document.getElementById('tipo-nota-sub');
+        const notaExame = document.getElementById('nota-exame');
+        const confettiContainer = document.getElementById('confetti-container');
+
+        // --- Elementos do DOM (Faltas) ---
+        const tabFaltasBtn = document.getElementById('tab-faltas');
+        const contentFaltas = document.getElementById('content-faltas');
+        const aulasSemanaRadios = document.getElementsByName('aulas-semana');
+        const inputFaltas = document.getElementById('input-faltas');
+        const faltasResultCard = document.getElementById('faltas-result-card');
+        const faltasResultTitle = document.getElementById('faltas-result-title');
+        const faltasResultMessage = document.getElementById('faltas-result-message');
+        const faltasPresencaBadge = document.getElementById('faltas-presenca-badge');
+        const temposLegend = document.getElementById('tempos-legend');
+
+        // --- Funções Utilitárias ---
+        function toggleConfetti(show) {
+            if (show) confettiContainer.classList.add('active');
+            else confettiContainer.classList.remove('active');
+        }
+
+        function switchTab(tabName) {
+            if (tabName === 'notas') {
+                tabNotasBtn.classList.add('bg-gray-50', 'border-red-600', 'text-gray-700');
+                tabNotasBtn.classList.remove('text-gray-500', 'border-transparent');
+                tabFaltasBtn.classList.remove('bg-gray-50', 'border-red-600', 'text-gray-700');
+                tabFaltasBtn.classList.add('text-gray-500', 'border-transparent');
+                contentNotas.classList.add('active');
+                contentFaltas.classList.remove('active');
+            } else {
+                tabFaltasBtn.classList.add('bg-gray-50', 'border-red-600', 'text-gray-700');
+                tabFaltasBtn.classList.remove('text-gray-500', 'border-transparent');
+                tabNotasBtn.classList.remove('bg-gray-50', 'border-red-600', 'text-gray-700');
+                tabNotasBtn.classList.add('text-gray-500', 'border-transparent');
+                contentFaltas.classList.add('active');
+                contentNotas.classList.remove('active');
+            }
+        }
+
+        // --- Lógica de Notas ---
+        function calculateGrades() {
+            let currentTotalScore = 0;
+            let remainingWeight = 0;
+            let accumulatedPoints = 0;
+            let emptyInputs = [];
+            let allFilled = true;
+
+            // Variáveis para a lógica da SUB (apenas Intermediária e Semestral)
+            let minSubGradeVal = Infinity;
+            let minSubGradeInput = null;
+            const substitutableInputs = [document.getElementById('input-inter'), document.getElementById('input-semes')];
+
+            // 1. Calcular Pontos e Identificar Campos
+            gradeInputs.forEach(input => {
+                const weight = parseFloat(input.dataset.weight);
+                const val = input.value;
+                
+                if (val !== '') {
+                    input.classList.remove('bg-white', 'text-gray-400', 'border-gray-300', 'placeholder-gray-300', 'border-dashed');
+                    input.classList.add('bg-red-600', 'text-white', 'border-red-700', 'shadow-sm');
+                    
+                    const numVal = parseFloat(val);
+                    currentTotalScore += (numVal * weight);
+                    accumulatedPoints += (numVal * weight);
+                    
+                } else {
+                    input.classList.add('bg-white', 'text-gray-400', 'border-gray-300', 'placeholder-gray-300', 'border-dashed');
+                    input.classList.remove('bg-red-600', 'text-white', 'border-red-700', 'shadow-sm');
+                    
+                    emptyInputs.push(input);
+                    remainingWeight += weight;
+                    allFilled = false;
+                }
+            });
+
+            // Lógica separada para encontrar a menor nota entre as substituíveis
+            substitutableInputs.forEach(input => {
+                const val = input.value;
+                if (val !== '') {
+                    const numVal = parseFloat(val);
+                    if (numVal < minSubGradeVal) {
+                        minSubGradeVal = numVal;
+                        minSubGradeInput = input;
+                    }
+                }
+            });
+
+            // 2. Média Atual e Estilização
+            const finalAverageStr = (currentTotalScore / 10).toFixed(2);
+            const finalAverage = parseFloat(finalAverageStr);
+            displayTotal.innerText = finalAverageStr;
+
+            displayTotal.className = "w-28 text-center text-2xl font-bold py-2 px-2 rounded-md border shadow-sm transition-all duration-300";
+            mediaStatusMessage.classList.add('hidden');
+            mediaStatusMessage.className = "mt-4 p-3 rounded-md text-sm font-bold text-center hidden card-enter";
+            recuperacaoInfo.classList.add('hidden');
+            gradeHint.classList.remove('hidden');
+            toggleConfetti(false);
+
+            if (finalAverage >= 7.0) {
+                displayTotal.classList.add('bg-green-600', 'text-white', 'border-green-700');
+                mediaStatusMessage.innerText = "🎉 Parabéns! Passou tranquilo!";
+                mediaStatusMessage.classList.add('bg-green-100', 'text-green-800', 'border', 'border-green-200');
+                mediaStatusMessage.classList.remove('hidden');
+                gradeHint.classList.add('hidden');
+                toggleConfetti(true);
+            } else if (finalAverage >= TARGET_MEDIA) {
+                displayTotal.classList.add('bg-yellow-500', 'text-white', 'border-yellow-600');
+                mediaStatusMessage.innerHTML = "⚠️ Atenção! Passou na risca!";
+                mediaStatusMessage.classList.add('bg-yellow-100', 'text-yellow-800', 'border', 'border-yellow-200');
+                mediaStatusMessage.classList.remove('hidden');
+                gradeHint.classList.add('hidden');
+            } else if (finalAverage > 0) {
+                displayTotal.classList.add('bg-red-500', 'text-white', 'border-red-600');
+            } else {
+                displayTotal.classList.add('bg-gray-200', 'text-gray-500', 'border-gray-300');
+            }
+
+            // 3. Lógica "Fantasma" e Recuperação
+            if (!allFilled) {
+                const targetPoints = TARGET_MEDIA * 10;
+                const pointsNeeded = targetPoints - accumulatedPoints;
+                
+                if (remainingWeight > 0) {
+                    const gradeNeeded = pointsNeeded / remainingWeight;
+                    
+                    emptyInputs.forEach(input => {
+                        if (gradeNeeded <= 0) {
+                            input.placeholder = "0.00";
+                        } else if (gradeNeeded > 10) {
+                            input.placeholder = "Imp.";
+                        } else {
+                            input.placeholder = gradeNeeded.toFixed(2);
+                        }
+                    });
+                }
+            } else {
+                gradeInputs.forEach(i => i.placeholder = "");
+                gradeHint.classList.add('hidden');
+                // Se tudo preenchido e média abaixo da meta, mostra recuperação
+                if (finalAverage < TARGET_MEDIA) {
+                    recuperacaoInfo.classList.remove('hidden');
+                    
+                    // Cálculo SUB
+                    if (minSubGradeInput) {
+                        const minWeight = parseFloat(minSubGradeInput.dataset.weight);
+                        const otherPoints = accumulatedPoints - (minSubGradeVal * minWeight);
+                        const pointsForSub = (TARGET_MEDIA * 10) - otherPoints;
+                        let rawGradeForSub = pointsForSub / minWeight;
+                        
+                        // Arredondamento para cima em múltiplos de 0.25 (1.03 -> 1.25)
+                        let gradeForSub = Math.ceil(rawGradeForSub * 4) / 4;
+                        if (gradeForSub < 0) gradeForSub = 0;
+                        
+                        notaSub.innerText = gradeForSub > 10 ? "Impossível" : gradeForSub.toFixed(2);
+
+                        // Limpar o nome da prova (remover o texto do peso)
+                        let labelText = minSubGradeInput.previousElementSibling.innerText;
+                        labelText = labelText.replace(/\(peso:.*\)/i, '').trim();
+                        tipoNotaSub.innerText = labelText.toLowerCase();
+                    } else {
+                        notaSub.innerText = "---";
+                        tipoNotaSub.innerText = "---";
+                    }
+
+                    // Cálculo EXAME
+                    const gradeForExame = 10 - finalAverage;
+                    notaExame.innerText = gradeForExame.toFixed(2);
+                }
+            }
+        }
+
+        // --- Lógica de Faltas ---
+        function calculateFaltas() {
+            const opcaoSelecionada = parseInt(document.querySelector('input[name="aulas-semana"]:checked').value);
+            const faltasAtuaisStr = inputFaltas.value;
+            const faltasAtuais = faltasAtuaisStr === '' ? 0 : parseInt(faltasAtuaisStr);
+
+            // --- ATUALIZA A LEGENDA ---
+            if (opcaoSelecionada === 1) {
+                temposLegend.innerHTML = `
+                    <p class="font-bold mb-1">📌 1 Aula por Semana:</p>
+                    <p><strong>1 dia = 2 tempos</strong> (ou 2 "aulas" no sistema).</p>
+                    <p class="mt-1 border-t border-gray-200 pt-1 italic">Cada dia que você vai à faculdade conta como 2 tempos de presença. Faltar 1 dia = 2 faltas.</p>
+                `;
+            } else {
+                temposLegend.innerHTML = `
+                    <p class="font-bold mb-1">📌 2 Aulas por Semana:</p>
+                    <p><strong>1 dia = 4 tempos</strong> (se for no mesmo dia) ou <strong>2 tempos</strong> (se dias separados).</p>
+                    <p class="mt-1 border-t border-gray-200 pt-1 italic"><strong>Regra de Ouro:</strong> 16 tempos = 4 dias letivos completos ou 8 aulas (dias/turnos) individuais.</p>
+                `;
+            }
+
+            if (faltasAtuaisStr === '') {
+                faltasResultCard.classList.add('hidden');
+                toggleConfetti(false);
+                return;
+            }
+
+            // Definição das constantes
+            const totalAulas = opcaoSelecionada === 1 ? AULAS_TOTAL_1 : AULAS_TOTAL_2;
+            const faltasPorDia = opcaoSelecionada === 1 ? FALTAS_POR_DIA_1 : FALTAS_POR_DIA_2;
+            
+            const limiteFaltas = Math.floor(totalAulas * LIMITE_FALTAS_PCT);
+            const faltasRestantes = limiteFaltas - faltasAtuais;
+            const presencaPct = ((totalAulas - faltasAtuais) / totalAulas) * 100;
+
+            // --- CÁLCULO DE DIAS RESTANTES ---
+            let diasRestantesCheios; 
+            let diasRestantesDivididos; 
+            let diasRestantesUnicos; 
+
+            if (opcaoSelecionada === 1) {
+                diasRestantesUnicos = Math.floor(faltasRestantes / 2);
+            } else {
+                diasRestantesCheios = Math.floor(faltasRestantes / 4); 
+                diasRestantesDivididos = Math.floor(faltasRestantes / 2);
+            }
+
+            const jaEstourou = faltasAtuais > limiteFaltas;
+            const estaNoLimiteExato = faltasAtuais === limiteFaltas;
+            
+            // Verifica se a próxima falta "padrão" faz estourar o limite
+            const reprovaNaProxima = (faltasAtuais + faltasPorDia) > limiteFaltas;
+            const limiteNaProxima = (faltasAtuais + faltasPorDia) === limiteFaltas;
+
+            faltasResultCard.classList.remove('hidden');
+            faltasResultCard.className = "mt-6 p-4 rounded-md shadow-sm border-l-4 transition-all duration-300 card-enter";
+            faltasResultTitle.className = "font-bold text-lg mb-2 flex items-center";
+            faltasPresencaBadge.className = "px-2 py-1 rounded-full border text-xs font-bold";
+            toggleConfetti(false);
+
+            if (jaEstourou) {
+                // Vermelho - Reprovado
+                faltasResultCard.classList.add('bg-red-50', 'border-red-600');
+                faltasResultTitle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Limite Excedido';
+                faltasResultTitle.classList.add('text-red-800');
+                faltasResultMessage.innerHTML = `Você ultrapassou o limite de ${limiteFaltas} faltas. Sua presença está abaixo de 75%.`;
+                faltasPresencaBadge.classList.add('bg-red-100', 'text-red-800', 'border-red-200');
+
+            } else if (estaNoLimiteExato || reprovaNaProxima) {
+                // Laranja - Limite exato OU Próxima falta reprova (caso 9 faltas no modo 1 aula)
+                faltasResultCard.classList.add('bg-orange-50', 'border-orange-500');
+                faltasResultTitle.classList.add('text-orange-800');
+                faltasPresencaBadge.classList.add('bg-orange-100', 'text-orange-800', 'border-orange-200');
+
+                if (estaNoLimiteExato) {
+                    faltasResultTitle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>Você está no Limite (75%)';
+                    faltasResultMessage.innerText = `Cuidado! Você tem exatamente 75% de presença. Se faltar qualquer aula, será reprovado.`;
+                } else {
+                    // Caso crítico (ex: 9 faltas onde limite é 10 e próxima falta é 2)
+                    faltasResultTitle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>Você está no Limite (${presencaPct.toFixed(1)}%)`;
+                    faltasResultMessage.innerText = `Cuidado! Você tem exatamente ${presencaPct.toFixed(1).replace('.', ',')}% de presença. Se faltar qualquer aula, será reprovado (pois ela desconta ${faltasPorDia} tempos).`;
+                }
+
+            } else if (limiteNaProxima) {
+                // Amarelo - Próxima falta atinge o limite (exatamente)
+                faltasResultCard.classList.add('bg-yellow-50', 'border-yellow-600');
+                faltasResultTitle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>Atenção: Risco Alto';
+                faltasResultTitle.classList.add('text-yellow-800');
+                faltasResultMessage.innerText = `ATENÇÃO: Se você faltar a próxima aula, atingirá EXATAMENTE o limite de 75%. Não corra riscos!`;
+                faltasPresencaBadge.classList.add('bg-yellow-100', 'text-yellow-800', 'border-yellow-200');
+
+            } else {
+                // LÓGICA DE AVISOS INTERMEDIÁRIOS (Verde ou Amarelo leve)
+                
+                // 1. Caso 1 Aula/Semana
+                if (opcaoSelecionada === 1) {
+                    if (diasRestantesUnicos <= 2) {
+                        // Amarelo - Restam 1 ou 2 dias "seguros" antes da zona de risco
+                        faltasResultCard.classList.add('bg-yellow-50', 'border-yellow-600');
+                        faltasResultTitle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>Atenção';
+                        faltasResultTitle.classList.add('text-yellow-800');
+                        faltasResultMessage.innerText = `Você pode faltar mais ${diasRestantesUnicos} dia(s) de aula. É bom guardar essas faltas para quando realmente precisar.`;
+                        faltasPresencaBadge.classList.add('bg-yellow-100', 'text-yellow-800', 'border-yellow-200');
+                    } else {
+                        // Verde
+                        faltasResultCard.classList.add('bg-green-50', 'border-green-600');
+                        faltasResultTitle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Situação Confortável';
+                        faltasResultTitle.classList.add('text-green-800');
+                        faltasResultMessage.innerText = `Você pode faltar mais ${diasRestantesUnicos} dias de aula para atingir o limite de 75% de presença.`;
+                        faltasPresencaBadge.classList.add('bg-green-100', 'text-green-800', 'border-green-200');
+                        toggleConfetti(true);
+                    }
+                } 
+                // 2. Caso 2 Aulas/Semana
+                else {
+                    // Amarelo se faltar pouco
+                    if (diasRestantesCheios <= 2) {
+                        faltasResultCard.classList.add('bg-yellow-50', 'border-yellow-600');
+                        faltasResultTitle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>Atenção';
+                        faltasResultTitle.classList.add('text-yellow-800');
+                        
+                        let msg = `Você pode faltar mais ${diasRestantesCheios} dias cheios (ou ${diasRestantesDivididos} dias separados). É bom guardar essas faltas.`;
+                        if (diasRestantesCheios === 0 && diasRestantesDivididos > 0) {
+                             msg = `<strong>Não falte mais se as 4 aulas forem no mesmo dia</strong> (excederá o limite).<br>Se forem divididas, você ainda pode faltar ${diasRestantesDivididos} dia(s) (2 tempos).`;
+                        }
+                        faltasResultMessage.innerHTML = msg;
+                        faltasPresencaBadge.classList.add('bg-yellow-100', 'text-yellow-800', 'border-yellow-200');
+
+                    } else {
+                        // Verde
+                        faltasResultCard.classList.add('bg-green-50', 'border-green-600');
+                        faltasResultTitle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Situação Confortável';
+                        faltasResultTitle.classList.add('text-green-800');
+                        faltasResultMessage.innerText = `Você pode faltar mais ${diasRestantesCheios} dias (se aulas no mesmo dia) ou ${diasRestantesDivididos} dias (se aulas em dias diferentes).`;
+                        faltasPresencaBadge.classList.add('bg-green-100', 'text-green-800', 'border-green-200');
+                        toggleConfetti(true);
+                    }
+                }
+            }
+            faltasPresencaBadge.innerText = `Presença Atual: ${presencaPct.toFixed(2)}%`;
+        }
+
+        // --- Event Listeners ---
+        tabNotasBtn.addEventListener('click', () => {
+            switchTab('notas');
+            calculateGrades();
+        });
+        tabFaltasBtn.addEventListener('click', () => {
+            switchTab('faltas');
+            calculateFaltas();
+        });
+
+        gradeInputs.forEach(input => {
+            input.addEventListener('input', calculateGrades);
+        });
+
+        aulasSemanaRadios.forEach(radio => {
+            radio.addEventListener('change', calculateFaltas);
+        });
+        inputFaltas.addEventListener('input', calculateFaltas);
+
+        calculateGrades();
+        calculateFaltas(); // Chama no início para já renderizar a legenda padrão
+    </script>
+</body>
+</html>
